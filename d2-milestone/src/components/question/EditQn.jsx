@@ -60,7 +60,7 @@ function EditQn({ question, handleClose, editQuestion }) {
                     value={category.join(",")} onChange={(e) => setCategory(e.target.value.split(","))}/>
                 </div>
                 <div className="container my-3">
-                    <h3>Complexity</h3>
+                    <h5>Complexity</h5>
                     <div className="form-check">
                         <input type="radio" id="easy" value="Easy" checked={complexity === "Easy"} onChange={(e) => setComplexity(e.target.value)}/>
                         <label className="form-check-label" htmlFor="easy">Easy</label>
