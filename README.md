@@ -1,5 +1,5 @@
 # CS3219 Project (PeerPrep) - AY2425S1
-## Group: Gxx
+## Group: G04
 
 ### Note: 
 - You can choose to develop individual microservices within separate folders within this repository **OR** use individual repositories (all public) for each microservice. 
