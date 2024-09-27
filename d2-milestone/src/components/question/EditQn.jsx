@@ -50,6 +50,11 @@ function EditQn({ question, handleClose, editQuestion }) {
                 <h2>Update Question</h2>
                 {error && <div className="alert alert-danger">{error}</div>}
                 <div className="mb-2">
+                    <label htmlFor="">Title</label>
+                    <input type="text" placeholder='Shortest Distance' className='form-control'
+                    value={title} onChange={e => setTitle(e.target.value)}/>
+                </div>
+                <div className="mb-2">
                     <label htmlFor="">Category</label>
                     <input type="text" placeholder='Data Structures' className='form-control'
                     value={category.join(",")} onChange={(e) => setCategory(e.target.value.split(","))}/>
@@ -74,11 +79,7 @@ function EditQn({ question, handleClose, editQuestion }) {
                     <input type="text" placeholder='Return the largest....' className='form-control' 
                     value={description} onChange={(e) => setDescription(e.target.value)}/>
                 </div>
-                <div className="mb-2">
-                    <label htmlFor="">Title</label>
-                    <input type="text" placeholder='Shortest Distance' className='form-control'
-                    value={title} onChange={e => setTitle(e.target.value)}/>
-                </div>
+
                 <button className="btn btn-success">Update</button>
             </form>
         </div>

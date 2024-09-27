@@ -38,13 +38,20 @@ function CreateQn({handleClose, addQuestion}) {
         <div className="w-100 bg-white p-3">
             <form onSubmit={Submit}>
                 {error && <div className="alert alert-danger">{error}</div>}
+
+                <div className="mb-2">
+                    <label htmlFor="">Title</label>
+                    <input type="text" placeholder='Shortest Distance' className='form-control'
+                    onChange={(e) => setTitle(e.target.value)}/>
+                </div>
+
                 <div className="mb-2">
                     <label htmlFor="">Category</label>
                     <input type="text" placeholder='Data Structures' className='form-control'
                     onChange={(e) => setCategory(e.target.value.split(","))}/>
                 </div>
-                <div className="container mt-3">
-                    <h3>Complexity</h3>
+                <div className="container my-3 " >
+                    <h5>Complexity</h5>
                     <div className="form-check">
                         <input type="radio" id="easy" value="Easy" name={"complexity"} 
                         onChange={(e) => setComplexity(e.target.value)}/>
@@ -66,11 +73,7 @@ function CreateQn({handleClose, addQuestion}) {
                     <input type="text" placeholder='Return the largest....' className='form-control'
                     onChange={(e) => setDescription(e.target.value)}/>
                 </div>
-                <div className="mb-2">
-                    <label htmlFor="">Title</label>
-                    <input type="text" placeholder='Shortest Distance' className='form-control'
-                    onChange={(e) => setTitle(e.target.value)}/>
-                </div>
+
                 <button className="btn btn-success">Submit</button>
             </form>
         </div>
