@@ -59,7 +59,7 @@ function EditQn({ question, handleClose, editQuestion }) {
                     <input type="text" placeholder='Data Structures' className='form-control'
                     value={category.join(",")} onChange={(e) => setCategory(e.target.value.split(","))}/>
                 </div>
-                <div className="container mt-3">
+                <div className="container my-3">
                     <h3>Complexity</h3>
                     <div className="form-check">
                         <input type="radio" id="easy" value="Easy" checked={complexity === "Easy"} onChange={(e) => setComplexity(e.target.value)}/>
