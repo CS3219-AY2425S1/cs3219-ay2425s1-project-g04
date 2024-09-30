@@ -5,6 +5,7 @@ QuestionService/insert_questions_script.py
 
 # dependencies
 QuestionService/node_modules
+user-service/node_modules
 /.pnp
 .pnp.js
 
