@@ -1,0 +1,6 @@
+# Ignore node_modules to prevent large files being included
+node_modules
+
+# Ignore Docker-related files themselves
+Dockerfile
+.dockerignore
