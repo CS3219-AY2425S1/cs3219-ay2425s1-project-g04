@@ -1,20 +1,16 @@
 const amqp = require("amqplib");
+const generator = require("../utils/generateQueues");
 
 const matching_exchange_name = "matching_exchange";
 const dead_letter_exchange_name = "dead_letter_exchange";
 const dead_letter_queue_name = "dead_letter_queue";
 const cancel_queue_name = "cancel_queue";
-const queueNames = [
-    'easy.python',
-    'easy.java',
-    'easy.cplusplus',
-    'medium.python',
-    'medium.java',
-    'medium.cplusplus',
-    'hard.python',
-    'hard.java',
-    'hard.cplusplus',
-];
+const difficulties = ["easy", "medium", "hard"];
+const languages = ["python", "java", "cplusplus"];
+
+const queueNames = generator.generateQueueNames(
+    generator.generateCombinations(difficulties, languages)
+);
 
 async function setupRabbitMQ() {
     try {
