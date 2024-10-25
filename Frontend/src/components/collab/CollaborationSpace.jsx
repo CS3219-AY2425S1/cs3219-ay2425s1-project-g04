@@ -21,6 +21,7 @@ const CollaborationSpace = () => {
     const [userId, setUserId] = useState(""); // current user 
     const [language, setLanguage] = useState("python") // set default language to python 
     const [output, setOutput] = useState("")
+    const [messages, setMessages] = useState([])
 
     // use https://emkc.org/api/v2/piston/runtimes to GET other languages
     const LANGUAGEVERSIONS = {
@@ -44,6 +45,10 @@ const CollaborationSpace = () => {
         fetchUser();
     }, [])
 
+    useEffect(() => {
+        console.log("Messages state updated:", messages);
+    }, [messages]);
+
     const initiateWebSocket = (userId) => {
 
         // create websocket server for room management 
@@ -61,6 +66,10 @@ const CollaborationSpace = () => {
             switch (data.type) {
                 case 'usersListUpdate':
                     setUsers(data.users);
+                    break;
+                case 'newMessage':
+                    console.log("adding message", data.message)
+                    setMessages((prevMessages) => [...prevMessages, data.message]);
                     break;
                 default:
                     console.log("No messages received from room management server");
@@ -135,6 +144,11 @@ const CollaborationSpace = () => {
         yText.insert(0, value); // Insert new content
     }
 
+    const sendMessage = (text) => {
+        const message = {text, sender: userId};
+        websocket.send(JSON.stringify({ type: 'sendMessage', roomId: roomId, message: message}));
+    }
+
     return (
         <div>
             <CollabNavigationBar handleExit={handleExit} handleCodeRun={handleCodeRun} users={users} setLanguage={setLanguage} language={language}/>
@@ -145,7 +159,7 @@ const CollaborationSpace = () => {
                     </Col>
                     <Col md={4}>
                         <QuestionDisplay/>
-                        <Chat/>
+                        <Chat currentUser={userId} messages={messages} sendMessage={sendMessage} ></Chat>
                     </Col>
                 </Row>
             </Container>

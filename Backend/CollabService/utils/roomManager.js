@@ -73,4 +73,8 @@ function manageRoom(ws, roomId, userId, type) {
     }
 }
 
-module.exports = { manageRoom };
+function getRoom(roomId) {
+    return rooms[roomId];
+}
+
+module.exports = { manageRoom, getRoom };
