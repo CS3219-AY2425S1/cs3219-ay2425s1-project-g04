@@ -9,13 +9,25 @@ function manageRoom(ws, roomId, userId, type) {
                 rooms[roomId] = { sockets: [], userIds: []};
             }
 
-            // add user to room 
-            rooms[roomId].sockets.push(ws);
-            rooms[roomId].userIds.push(userId);
+            const room = rooms[roomId];
+            if (room.userIds.length < 2) {
+                // add user to room 
+                room.sockets.push(ws);
+                room.userIds.push(userId);
+                console.log(`room ${roomId} authorized users are ${room.userIds}`)
+            }
+
+            if (!room.userIds.includes(userId)){
+                console.log(`User ${userId} is denied access to room ${roomId}`);
+                ws.send(JSON.stringify({ type: 'accessDenied', message: 'You are not allowed to access this room.' }));
+                ws.close();
+                return;
+            }
+
             // set websocket roomId 
             ws.roomId = roomId;
 
-            console.log(`User ${userId} joined room ${roomId}`);
+            console.log(`[roomManager] User ${userId} joined room ${roomId}`);
 
             // notify users of roomId of updated user list to display in frontend
             broadcastUserListUpdate(roomId);
@@ -24,7 +36,7 @@ function manageRoom(ws, roomId, userId, type) {
         case "leave":
             // remove from room 
             rooms[roomId].sockets = rooms[roomId].sockets.filter(socket => socket !== ws);
-            rooms[roomId].userIds = rooms[roomId].userIds.filter(user => user !== userId);
+            // rooms[roomId].userIds = rooms[roomId].userIds.filter(user => user !== userId);
 
             console.log(`User ${userId} left the room ${roomId}`);
 
@@ -73,4 +85,8 @@ function manageRoom(ws, roomId, userId, type) {
     }
 }
 
-module.exports = { manageRoom };
+function getUsersInRoom(roomId){
+    return rooms[roomId]?.userIds || [];
+}
+
+module.exports = { manageRoom, getUsersInRoom };
