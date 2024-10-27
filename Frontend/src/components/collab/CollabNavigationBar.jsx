@@ -6,6 +6,7 @@ const CollabNavigationBar = ({ handleExit, users, handleCodeRun, setLanguage, la
   return (
      <Navbar className='bg-light' sticky='top'>
         <Container className='d-flex justify-content-between'>
+          
           {/* Language Dropdown on left */}
           <Nav className='me-auto'>
             <Dropdown onSelect={(eventKey) => setLanguage(eventKey)}>
@@ -19,6 +20,7 @@ const CollabNavigationBar = ({ handleExit, users, handleCodeRun, setLanguage, la
               </DropdownMenu>
             </Dropdown>
           </Nav>
+          
           {/* Run Code and Exit Buttons in Center */}
           <Nav className='mx-auto'>
             <Button onClick={handleCodeRun}>Run Code</Button>
@@ -26,7 +28,8 @@ const CollabNavigationBar = ({ handleExit, users, handleCodeRun, setLanguage, la
           </Nav>
           
           {/* Users at the right */}
-          <Nav>
+          <Nav className='d-flex align-items-center'>
+            <p className='mb-0 me-2'>Online:</p>
             {users.map(user => {
                 return <div
                 className='border rounded p-2 bg-secondary text-center mx-2'

@@ -9,6 +9,9 @@ import CollabNavigationBar from './CollabNavigationBar';
 import CodeSpace from './CodeSpace';
 import { Container, Row, Col } from 'react-bootstrap';
 import collabService from '../../services/collab'; 
+import Toast from 'react-bootstrap/Toast';
+import ToastContainer from 'react-bootstrap/ToastContainer';
+import Spinner from 'react-bootstrap/Spinner';
 
 const CollaborationSpace = () => {
     const navigate = useNavigate();
@@ -22,14 +25,27 @@ const CollaborationSpace = () => {
     const [language, setLanguage] = useState("python") // set default language to python 
     const [output, setOutput] = useState("")
 
-    // use https://emkc.org/api/v2/piston/runtimes to GET other languages
     const LANGUAGEVERSIONS = {
         "python" : "3.10.0",
         "java" : "15.0.2",
         "c++": "10.2.0"
-    }
+    };
 
-    {/* Set up websockets for room management on client side, and collaboration for Yjs */}
+    const [showAccessDeniedToast, setShowAccessDeniedToast] = useState(
+        JSON.parse(sessionStorage.getItem('showAccessDeniedToast')) || false
+    );
+    const [toastMessage, setToastMessage] = useState('');
+    const [loading, setLoading] = useState(
+        JSON.parse(sessionStorage.getItem('loading')) !== false
+    );
+
+    const handleCloseToast = () => {
+        setShowAccessDeniedToast(false);
+        sessionStorage.setItem('showAccessDeniedToast', false);
+        navigate("/home");
+    };
+
+    // Set up websockets for room management on client side, and collaboration for Yjs
     useEffect(() => {
         const fetchUser = async () => {
             const user = await getUserFromToken();
@@ -42,25 +58,40 @@ const CollaborationSpace = () => {
         };
 
         fetchUser();
-    }, [])
+        // Sync states with sessionStorage
+        return () => {
+            sessionStorage.setItem('loading', loading);
+            sessionStorage.setItem('showAccessDeniedToast', showAccessDeniedToast);
+        };
+    }, [loading, showAccessDeniedToast]);
 
     const initiateWebSocket = (userId) => {
-
-        // create websocket server for room management 
         const websocket = new WebSocket("ws://localhost:3004");
         setWebsocket(websocket);
 
         websocket.onopen = () => {
-            // notify the server user has joined 
             websocket.send(JSON.stringify( {type: 'joinRoom', roomId, userId: userId}));
-        }
+            
+            // Request userIds when matched user rejoins
+            websocket.send(JSON.stringify({ type: 'requestUserList', roomId }));
+        };
 
-        // on getting a reply from server
         websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            const stringData = JSON.stringify(data);
+            console.log(`[FRONTEND] data message is ${stringData}`);
             switch (data.type) {
                 case 'usersListUpdate':
-                    setUsers(data.users);
+                    setUsers(data.users);  // Update the user list
+                    setShowAccessDeniedToast(false);
+                    setLoading(false);      // Access allowed; stop loading
+                    sessionStorage.setItem('loading', false);
+                    break;
+                case 'accessDenied':
+                    setToastMessage(data.message);
+                    setShowAccessDeniedToast(true);
+                    setLoading(false);
+                    sessionStorage.setItem('showAccessDeniedToast', true);
                     break;
                 default:
                     console.log("No messages received from room management server");
@@ -88,67 +119,83 @@ const CollaborationSpace = () => {
             // clean up for room management
             wsProvider.destroy();
             doc.destroy();
-        }
-    }
-
-    {/* Functions to handle interaction with UI elements */}
+        };
+    };
 
     const handleExit = () => {
-        // Notify server 3004 user is leaving 
         websocket.send(JSON.stringify({ type: 'leaveRoom', roomId, userId}));
-
-        // Clean up Yjs document and provider before going back to home
-        if (provider) {
-            provider.destroy();
-        }
-
-        if (yDoc) {
-            yDoc.destroy();
-        }
-
-        navigate("/home")
+        if (provider) provider.destroy();
+        if (yDoc) yDoc.destroy();
+        navigate("/home");
     };
 
     const handleCodeRun = () => {
         const code_message = {
             "language": language,
-            "files": [
-                {
-                    "content": code
-                }
-            ],
+            "files": [{ "content": code }],
             "version": LANGUAGEVERSIONS[language]
-        }
+        };
 
         collabService.getCodeOutput(code_message)
-        .then(result => {
-            console.log(result.data.run.output)
-            setOutput(result.data.run.output)
-        })
+        .then(result => setOutput(result.data.run.output))
         .catch(err => console.log(err));
-
-    }
+    };
 
     const handleEditorChange = (value) => {
         const yText = yDoc.getText('monacoEditor');
-        yText.delete(0, yText.length); // Clear existing content 
-        yText.insert(0, value); // Insert new content
+        yText.delete(0, yText.length);
+        yText.insert(0, value);
+    };
+
+    if (loading) {
+        return (
+            <div style={{ textAlign: 'center', marginTop: '50px' }}>
+                <Spinner animation="border" variant="primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+                <p>Loading collaboration space...</p>
+            </div>
+        );
     }
 
     return (
-        <div>
-            <CollabNavigationBar handleExit={handleExit} handleCodeRun={handleCodeRun} users={users} setLanguage={setLanguage} language={language}/>
-            <Container fluid style={{ marginTop: '20px' }}>
-                <Row>
-                    <Col md={8}>
-                        <CodeSpace handleEditorChange={handleEditorChange} code={code} language={language} output={output}/>
-                    </Col>
-                    <Col md={4}>
-                        <QuestionDisplay/>
-                        <Chat/>
-                    </Col>
-                </Row>
-            </Container>
+        <div style={{ textAlign: 'center' }}>
+            {showAccessDeniedToast ? (
+            <ToastContainer
+                className="p-3"
+                position="top-center"
+                style={{ zIndex: 1 }}
+            >
+                <Toast 
+                    onClose={handleCloseToast} 
+                    show={showAccessDeniedToast} 
+                    delay={3000} 
+                    autohide
+                    bg="danger"
+                >
+                    <Toast.Body className='text-white'>
+                        <strong>{toastMessage}</strong>
+                    </Toast.Body>
+                </Toast>
+            </ToastContainer>
+        ) : (
+            <>
+                <div>
+                    <CollabNavigationBar handleExit={handleExit} handleCodeRun={handleCodeRun} users={users} setLanguage={setLanguage} language={language}/>
+                    <Container fluid style={{ marginTop: '20px' }}>
+                        <Row>
+                            <Col md={8}>
+                                <CodeSpace handleEditorChange={handleEditorChange} code={code} language={language} output={output}/>
+                            </Col>
+                            <Col md={4}>
+                                <QuestionDisplay/>
+                                <Chat/>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+            </>
+        )}
         </div>
     );
 };

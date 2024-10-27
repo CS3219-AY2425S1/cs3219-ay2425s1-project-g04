@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const { manageRoom } = require('../utils/roomManager');
+const { manageRoom, getUsersInRoom} = require('../utils/roomManager');
 
 function setupWebSocket(server) {
     const wss = new WebSocket.Server({ server });
@@ -18,6 +18,13 @@ function setupWebSocket(server) {
                 case 'leaveRoom':
                     // remove user from room with roomId
                     manageRoom(ws, data.roomId, data.userId, "leave");
+                    break;
+                case 'requestUserList': 
+                    const users = getUsersInRoom(data.roomId);
+                    ws.send(JSON.stringify({
+                        type: 'usersListUpdate',
+                        users
+                    }));
                     break;
                 default:
                     console.error('Unknown message type');

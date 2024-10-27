@@ -2,20 +2,48 @@ const WebSocket = require('ws');
 const rooms = {};  // { roomId: [sockets] }
 
 function manageRoom(ws, roomId, userId, type) {
+    console.log(`manageRoom function: ${type} ${userId}`)
 
     switch (type) {
         case "join":
+            
+            // userIds -> track users in room
+            // matchedUserIds -> check authorized users
             if (!rooms[roomId]) {
-                rooms[roomId] = { sockets: [], userIds: []};
+                rooms[roomId] = { sockets: [], userIds: [], matchedUserIds: []};
             }
 
-            // add user to room 
-            rooms[roomId].sockets.push(ws);
-            rooms[roomId].userIds.push(userId);
+            console.log(`BEFORE room Info: userIds[${rooms[roomId].userIds}] || matchedusers[${rooms[roomId].matchedUserIds}]`)
+        
+            const numOfMatchedUsers = rooms[roomId].matchedUserIds.length
+
+            // max 2 authorized users per room
+            if (numOfMatchedUsers < 2) {
+                rooms[roomId].sockets.push(ws);
+                rooms[roomId].userIds.push(userId);
+                rooms[roomId].matchedUserIds.push(userId);
+            }
+            
+            if (numOfMatchedUsers === 2){
+                if (!rooms[roomId].matchedUserIds.includes(userId)){
+                    console.log(`User ${userId} is denied access to room ${roomId}`);
+                    ws.send(JSON.stringify({ type: 'accessDenied', message: 'You are not allowed to access this room.' }));
+                    ws.close();
+                    return;
+                } else {
+                    // case: matched user rejoins an un-deleted room
+                    rooms[roomId].sockets.push(ws);
+                    rooms[roomId].userIds.push(userId);
+                }
+            }
+            
+
             // set websocket roomId 
             ws.roomId = roomId;
 
-            console.log(`User ${userId} joined room ${roomId}`);
+            console.log(`[ROOM MANAGER] User ${userId} joined room ${roomId}`);
+            console.log(`AFTER room Info: userIds[${rooms[roomId].userIds}] || matchedusers[${rooms[roomId].matchedUserIds}]`)
+
 
             // notify users of roomId of updated user list to display in frontend
             broadcastUserListUpdate(roomId);
@@ -73,4 +101,9 @@ function manageRoom(ws, roomId, userId, type) {
     }
 }
 
-module.exports = { manageRoom };
+function getUsersInRoom(roomId){
+    return rooms[roomId]?.userIds || [];
+}
+
+module.exports = { manageRoom, getUsersInRoom };
+
