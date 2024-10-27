@@ -6,7 +6,6 @@ function SuccessfulMatch({ handleClose }) {
         <div className="matching-container">
             <div className="matching-text">
                 <h2>We found you a match!</h2>
-                <p>Redirecting you to collab space...</p>
             </div>
         </div>
     );
