@@ -25,7 +25,7 @@ services:
       context: ./Backend/CollabService
       dockerfile: Dockerfile
     ports:
-      - "3010:3004" # change the first port number xxxx:3004 to suit your needs
+      - "3004:3004" # change the first port number xxxx:3004 to suit your needs
 
   frontend:
     build:
