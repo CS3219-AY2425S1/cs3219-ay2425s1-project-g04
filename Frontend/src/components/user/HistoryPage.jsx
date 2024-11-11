@@ -33,14 +33,14 @@ function HistoryPage() {
     return(
         <div>
             <NavigationBar/>
-            <div className="row">
-                <div className="Navbar col-2">
+            {/* <div className="row"> */}
+                {/* <div className="Navbar col-2">
                     <ProfileSidebar userID={userID}/>
-                </div>
-                <div className="col-10">
+                </div> */}
+                <div className="container-fluid p-5">
                     <HistoryTable userID={userID}/>
                 </div>
-            </div>
+            {/* </div> */}
         </div>
     );
 }
