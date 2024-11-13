@@ -1,0 +1,39 @@
+.matching-container {
+    position: relative;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    padding: 60px;
+    border-radius: 10px;
+  }
+  
+  .matching-text h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .matching-text p {
+    font-size: 1rem;
+    margin-top: 20px;
+  }
+  
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    /* background-color: red; */
+    color: white;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .matching-modal-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px; /* Adjust as per your requirement */
+  }

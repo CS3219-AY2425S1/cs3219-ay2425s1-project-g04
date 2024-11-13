@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "express": "^4.21.1",
+    "ws": "^8.18.0",
+    "y-websocket": "^2.0.4",
+    "y-websocket-server": "^1.0.2",
+    "y-websockets-server": "^9.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  }
+}

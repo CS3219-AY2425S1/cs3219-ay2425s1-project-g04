@@ -1,0 +1,53 @@
+services:
+  question-service:
+    build:
+      context: ./Backend/QuestionService
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: ./Backend/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+
+  collab-service:
+    build:
+      context: ./Backend/CollabService
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004" # change the first port number xxxx:3004 to suit your needs
+      - "1234:1234"
+  
+  history-service:
+    build:
+      context: ./Backend/HistoryService
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005" # change the first port number xxxx:3004 to suit your needs
+
+  matching-service:
+    build:
+      context: ./Backend/MatchingService
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - QUESTION_SERVICE_HOST=question-service
+    depends_on:
+      question-service:
+        condition: service_healthy
+  
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
